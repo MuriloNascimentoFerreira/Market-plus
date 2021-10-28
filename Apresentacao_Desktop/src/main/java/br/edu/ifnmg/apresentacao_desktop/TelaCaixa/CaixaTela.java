@@ -868,6 +868,8 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
         if(!email.isEmpty()){
             String senha = util.abrirInputPasswordDialog("Informe a SENHA do administrador", true, this);
             if(usuarioRepositorio.ValidarAdmin(email, senha) != null){
+                transacaoFinanceira.setTransacaoStatus(TransacaoStatus.Cancelada);
+                transacaoFinanceiraRepositorio.Salvar(transacaoFinanceira);
                 CaixaTela.transacaoFinanceira.getItens().clear();
                 this.renderProdutos(transacaoFinanceira.getItens());
                 this.atualizarTotal();
