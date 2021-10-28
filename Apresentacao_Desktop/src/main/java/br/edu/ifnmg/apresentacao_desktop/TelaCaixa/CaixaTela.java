@@ -754,7 +754,7 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
         this.renderProdutos(transacaoFinanceira.getItens());
         this.atualizarTotal();
         this.listagemRapidaProdutos();
-        this.cliente = new Cliente();
+        this.cliente = clienteRepositorio.Autenticar("0","0");
         this.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
     }
     
@@ -870,7 +870,7 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
             if(usuarioRepositorio.ValidarAdmin(email, senha) != null){
                 transacaoFinanceira.setTransacaoStatus(TransacaoStatus.Cancelada);
                 transacaoFinanceiraRepositorio.Salvar(transacaoFinanceira);
-                CaixaTela.transacaoFinanceira.getItens().clear();
+                CaixaTela.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
                 this.renderProdutos(transacaoFinanceira.getItens());
                 this.atualizarTotal();
                 util.abrirJOptionPane("sucesso","",this);
