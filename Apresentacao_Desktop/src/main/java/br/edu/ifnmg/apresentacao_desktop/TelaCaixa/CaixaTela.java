@@ -67,7 +67,8 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
      * Creates new form CaixaTela
      */
     public CaixaTela() {
-        this.cliente = new Cliente();
+        ClienteRepositorio clienteRepositorio = RepositorioFactory.getClienteRepositorio();
+    CaixaTela.cliente = clienteRepositorio.Autenticar("0","0"); 
         this.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
         
         this.transacaoFinanceiraRepositorio = RepositorioFactory.getTransacaoFinanceiraRepositorio();
@@ -797,6 +798,14 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
 
                 this.renderProdutos(transacaoFinanceira.getItens());
                 this.txtCode.setText("");
+                
+                if(transacaoFinanceira.getId() != null && transacaoFinanceira.getId() > 0){
+                    transacaoFinanceiraRepositorio.Salvar(transacaoFinanceira);
+                }else{
+                    transacaoFinanceira.setCliente(cliente);
+                    transacaoFinanceira.setId(transacaoFinanceiraRepositorio.SalvarRetornandoID(transacaoFinanceira));
+                }
+                
                 
                 CaixaTela.playSoundEffect();
                 atualizarTotal();

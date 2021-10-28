@@ -16,4 +16,5 @@ public interface Repositorio<T> {
     public boolean Apagar(T obj);
     public T Abrir(Long id);
     public List<T> Buscar(T obj);
+    public Long SalvarRetornandoID(T obj);
 }

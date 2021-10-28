@@ -5,6 +5,7 @@
  */
 package br.edu.ifnmg.persistencia;
 import br.edu.ifnmg.logicaAplicacao.Repositorio;
+import br.edu.ifnmg.logicaAplicacao.TransacaoFinanceira;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
@@ -48,6 +49,31 @@ public abstract class DataAccessObject<T> implements Repositorio<T>{
             
             return false;
         }
+    }
+    
+    @Override
+    public Long SalvarRetornandoID(T obj) {
+        EntityTransaction transacao = this.manager.getTransaction();
+        try {
+            transacao.begin();
+
+            this.manager.persist(obj);
+            this.manager.flush();
+
+            transacao.commit();
+            
+            if(obj.getClass() == TransacaoFinanceira.class){
+                TransacaoFinanceira t = (TransacaoFinanceira) obj;
+                return t.getId();
+            }
+            
+        } catch(Exception ex){
+            transacao.rollback();
+            System.out.println(ex);
+            
+        }
+        
+        return null;
     }
     
     private boolean Merge(T obj){

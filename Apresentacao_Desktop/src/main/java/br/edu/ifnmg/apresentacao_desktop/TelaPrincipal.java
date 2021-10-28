@@ -50,7 +50,7 @@ public class TelaPrincipal extends javax.swing.JFrame {
         TelaPrincipal.usuario = usuario;
         this.util = new Util();
         
-        initDesenvolvedor(false);
+        initDesenvolvedor(true);
    
         TelaPrincipal.permissions = new HashMap<>();
         TelaPrincipal.initRemovePermissions();
