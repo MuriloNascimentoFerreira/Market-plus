@@ -67,7 +67,8 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
      * Creates new form CaixaTela
      */
     public CaixaTela() {
-        this.cliente = new Cliente();
+        ClienteRepositorio clienteRepositorio = RepositorioFactory.getClienteRepositorio();
+    CaixaTela.cliente = clienteRepositorio.Autenticar("0","0"); 
         this.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
         
         this.transacaoFinanceiraRepositorio = RepositorioFactory.getTransacaoFinanceiraRepositorio();
@@ -675,10 +676,9 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
 
     private void tableResultadoProdutosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableResultadoProdutosMouseClicked
         int linha = tableResultadoProdutos.getSelectedRow();
-        int idx = (int) tableResultadoProdutos.getValueAt(linha, 0);
+        int idx = (int) tableResultadoProdutos.getValueAt(linha, 0)-1;
 
-        EditarListaPedido editarListaPedido = new EditarListaPedido(transacaoFinanceira.getItens().get(idx-1));
-        System.out.println(transacaoFinanceira.getItens().get(idx-1).getProduto().getNome());
+        EditarListaPedido editarListaPedido = new EditarListaPedido(transacaoFinanceira.getItens().get(idx), idx);
         editarListaPedido.addInternalFrameListener(this);
         CaixaTela.jDesktopPane1.add(editarListaPedido);
         Util.centralizaInternalFrame(editarListaPedido, this.getSize());
@@ -719,15 +719,13 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
         
         
         for (ItemVenda item : transacaoFinanceira.getItens()) {
+            BigDecimal quantidadePedida = item.getQuantidade();
             for (Lote lote : item.getProduto().getEstoque().getLotes()){
-                
-                if(lote.getNasPrateleiras() >= Integer.parseInt(item.getQuantidade().toString()) ){
-                    lote.setNasPrateleiras(lote.getNasPrateleiras() - Integer.parseInt(item.getQuantidade().toString()) );
-                    
+                if(lote.getNasPrateleiras() >= Integer.parseInt(quantidadePedida.toString()) ){
+                    lote.setNasPrateleiras(lote.getNasPrateleiras() - Integer.parseInt(quantidadePedida.toString()) );
                     break;
                 }else{
-                
-                    item.setQuantidade(item.getQuantidade().subtract(new BigDecimal(lote.getNasPrateleiras())));
+                    quantidadePedida = quantidadePedida.subtract(new BigDecimal(lote.getNasPrateleiras()));
                     lote.setNasPrateleiras(0);
                 }
             }
@@ -756,7 +754,7 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
         this.renderProdutos(transacaoFinanceira.getItens());
         this.atualizarTotal();
         this.listagemRapidaProdutos();
-        this.cliente = new Cliente();
+        this.cliente = clienteRepositorio.Autenticar("0","0");
         this.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
     }
     
@@ -800,6 +798,14 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
 
                 this.renderProdutos(transacaoFinanceira.getItens());
                 this.txtCode.setText("");
+                
+                if(transacaoFinanceira.getId() != null && transacaoFinanceira.getId() > 0){
+                    transacaoFinanceiraRepositorio.Salvar(transacaoFinanceira);
+                }else{
+                    transacaoFinanceira.setCliente(cliente);
+                    transacaoFinanceira.setId(transacaoFinanceiraRepositorio.SalvarRetornandoID(transacaoFinanceira));
+                }
+                
                 
                 CaixaTela.playSoundEffect();
                 atualizarTotal();
@@ -862,7 +868,9 @@ public class CaixaTela extends javax.swing.JInternalFrame implements KeyListener
         if(!email.isEmpty()){
             String senha = util.abrirInputPasswordDialog("Informe a SENHA do administrador", true, this);
             if(usuarioRepositorio.ValidarAdmin(email, senha) != null){
-                CaixaTela.transacaoFinanceira.getItens().clear();
+                transacaoFinanceira.setTransacaoStatus(TransacaoStatus.Cancelada);
+                transacaoFinanceiraRepositorio.Salvar(transacaoFinanceira);
+                CaixaTela.transacaoFinanceira = new TransacaoFinanceira(TransacaoTipo.Venda, TransacaoStatus.Criada, TelaPrincipal.getUsuario(), Calendar.getInstance(), cliente);
                 this.renderProdutos(transacaoFinanceira.getItens());
                 this.atualizarTotal();
                 util.abrirJOptionPane("sucesso","",this);

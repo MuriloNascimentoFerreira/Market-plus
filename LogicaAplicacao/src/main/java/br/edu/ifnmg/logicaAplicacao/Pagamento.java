@@ -58,7 +58,7 @@ public class Pagamento implements Serializable {
     @Column(nullable=false)
     private FormaPagamento formaPagamento;
     
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinColumn(name = "transacao_financeira_id", nullable = false)
     private TransacaoFinanceira transacaoFinanceira;
     
